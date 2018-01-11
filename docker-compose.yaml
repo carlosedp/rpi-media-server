@@ -1,0 +1,96 @@
+version: '3'
+
+services:
+
+   portainer:
+     image: portainer/portainer
+     restart: always
+     ports:
+       - "9000:9000"
+     volumes:
+       - /var/run/docker.sock:/var/run/docker.sock
+       - portainer_data:/data portainer/
+
+   transmission:
+     image: carlosedp/rpi-transmission
+     network_mode: "host"
+     restart: unless-stopped
+     ports:
+       - "9091:9091"
+       - "51413:51413"
+       - "51413:51413/udp"
+     volumes:
+       - transmission_config:/etc/transmission-daemon
+       - $TORRENT_DIR:/var/lib/transmission-daemon/downloads
+
+   sickrage:
+     depends_on:
+       - transmission
+     image: carlosedp/rpi-sickrage
+     network_mode: "host"
+     restart: unless-stopped
+     ports:
+       - "8081:8081"
+     volumes:
+       - sickrage_config:/config
+       - $TORRENT_DIR:/downloads
+       - $TVSHOWS:/tv
+     environment:
+       PGID: $GROUP_ID
+       PUID: $USER_ID
+
+   couchpotato:
+     depends_on:
+       - transmission
+     image: carlosedp/rpi-couchpotato
+     network_mode: "host"
+     restart: unless-stopped
+     ports:
+       - "5050:5050"
+     volumes:
+       - $MEDIA:/volumes/media
+       - couchpotato_data:/volumes/data
+       - couchpotato_config:/volumes/config
+       - /etc/localtime:/etc/localtime:ro
+
+   plex:
+     image: jaymoulin/plex
+     network_mode: "host"
+     restart: unless-stopped
+     volumes:
+       - $MEDIA:/media
+       - plex_config:/root/Library
+
+   vnstatd:
+     image: carlosedp/rpi-vnstatd
+     network_mode: "host"
+     restart: unless-stopped
+     privileged: true
+     volumes:
+       - vnstat_data:/var/lib/vnstat
+
+   htpcmanager:
+     depends_on:
+       - vnstatd
+     image: carlosedp/rpi-htpcmanager
+     network_mode: "host"
+     restart: unless-stopped
+     ports:
+       - "8085:8085"
+     volumes:
+       - htpcmanager_config:/config
+       - vnstat_data:/var/lib/vnstat
+       - /mnt:/mnt
+     environment:
+       PGID: $GROUP_ID
+       PUID: $USER_ID
+
+volumes:
+    portainer_data:
+    transmission_config:
+    sickrage_config:
+    couchpotato_data:
+    couchpotato_config:
+    plex_config:
+    vnstat_data:
+    htpcmanager_config:
