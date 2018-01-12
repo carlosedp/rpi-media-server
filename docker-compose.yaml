@@ -21,7 +21,7 @@ services:
        - "51413:51413/udp"
      volumes:
        - transmission_config:/etc/transmission-daemon
-       - $TORRENT_DIR:/var/lib/transmission-daemon/downloads
+       - ${TORRENT_DIR}:/var/lib/transmission-daemon/downloads
 
    sickrage:
      depends_on:
@@ -33,11 +33,11 @@ services:
        - "8081:8081"
      volumes:
        - sickrage_config:/config
-       - $TORRENT_DIR:/downloads
-       - $TVSHOWS:/tv
+       - ${TORRENT_DIR}:/downloads
+       - ${TVSHOWS}:/tv
      environment:
-       PGID: $GROUP_ID
-       PUID: $USER_ID
+       PGID: ${GROUP_ID}
+       PUID: ${USER_ID}
 
    couchpotato:
      depends_on:
@@ -48,7 +48,7 @@ services:
      ports:
        - "5050:5050"
      volumes:
-       - $MEDIA:/volumes/media
+       - ${MEDIA}:/volumes/media
        - couchpotato_data:/volumes/data
        - couchpotato_config:/volumes/config
        - /etc/localtime:/etc/localtime:ro
@@ -58,7 +58,7 @@ services:
      network_mode: "host"
      restart: unless-stopped
      volumes:
-       - $MEDIA:/media
+       - ${MEDIA}:/media
        - plex_config:/root/Library
 
    vnstatd:
@@ -82,8 +82,8 @@ services:
        - vnstat_data:/var/lib/vnstat
        - /mnt:/mnt
      environment:
-       PGID: $GROUP_ID
-       PUID: $USER_ID
+       PGID: ${GROUP_ID}
+       PUID: ${USER_ID}
 
 volumes:
     portainer_data:
