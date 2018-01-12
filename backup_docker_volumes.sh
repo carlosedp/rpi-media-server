@@ -1,5 +1,15 @@
 #!/bin/bash
-for i in $(docker volume ls -q); do
+
+if [[ $1 == '-a' ]]; then
+    VOLUMES=$(docker volume ls -q)
+elif [[ $1 ]]; then
+    VOLUMES=$1
+else
+    echo "No parameter passed, provide a volume name or '-a' to backup all volumes."
+    exit
+fi
+
+for i in $VOLUMES; do
     echo Backup volume: $i
     export DOCKER_VOLUME=$i
     docker run -d \
