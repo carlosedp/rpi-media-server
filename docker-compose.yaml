@@ -2,16 +2,6 @@ version: '2'
 
 services:
 
-   portainer:
-     image: portainer/portainer
-     restart: always
-     ports:
-       - "9000:9000"
-     volumes:
-       - /var/run/docker.sock:/var/run/docker.sock
-       - portainer_data:/data
-       - /etc/localtime:/etc/localtime:ro
-
    transmission:
      image: carlosedp/rpi-transmission
      network_mode: "host"
@@ -92,7 +82,6 @@ services:
        PUID: ${USER_ID}
 
 volumes:
-    portainer_data:
     transmission_config:
     sickrage_config:
     couchpotato_data:
