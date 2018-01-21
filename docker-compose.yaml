@@ -4,7 +4,6 @@ services:
 
    transmission:
      image: carlosedp/rpi-transmission
-     network_mode: "host"
      restart: unless-stopped
      ports:
        - "9091:9091"
@@ -12,21 +11,19 @@ services:
        - "51413:51413/udp"
      volumes:
        - transmission_config:/etc/transmission-daemon
-       - ${TORRENT_DIR}:/var/lib/transmission-daemon/downloads
+       - ${MEDIA}:/volumes/media
        - /etc/localtime:/etc/localtime:ro
 
    sickrage:
      depends_on:
        - transmission
      image: carlosedp/rpi-sickrage
-     network_mode: "host"
      restart: unless-stopped
      ports:
        - "8081:8081"
      volumes:
        - sickrage_config:/config
-       - ${TORRENT_DIR}:/downloads
-       - ${TVSHOWS}:/tv
+       - ${MEDIA}:/volumes/media
        - /etc/localtime:/etc/localtime:ro
      environment:
        PGID: ${GROUP_ID}
@@ -36,7 +33,6 @@ services:
      depends_on:
        - transmission
      image: carlosedp/rpi-couchpotato
-     network_mode: "host"
      restart: unless-stopped
      ports:
        - "5050:5050"
@@ -48,8 +44,17 @@ services:
 
    plex:
      image: jaymoulin/plex
-     network_mode: "host"
      restart: unless-stopped
+     ports:
+       - 32400:32400/tcp
+       - 3005:3005/tcp
+       - 8324:8324/tcp
+       - 32469:32469/tcp
+       - 1900:1900/udp
+       - 32410:32410/udp
+       - 32412:32412/udp
+       - 32413:32413/udp
+       - 32414:32414/udp
      volumes:
        - ${MEDIA}:/media
        - plex_config:/root/Library
@@ -68,7 +73,6 @@ services:
      depends_on:
        - vnstatd
      image: carlosedp/rpi-htpcmanager
-     network_mode: "host"
      restart: unless-stopped
      ports:
        - "8085:8085"
@@ -80,6 +84,15 @@ services:
      environment:
        PGID: ${GROUP_ID}
        PUID: ${USER_ID}
+     networks:
+       - default
+       - traefik
+     labels:
+       - "traefik.backend=htpcmanager"
+       - "traefik.frontend.rule=Host:htpcmanager.cloud.carlosedp.com"
+       - "traefik.enable=true"
+       - "traefik.port=8085"
+       - "traefik.default.protocol=http"
 
 volumes:
     transmission_config:
@@ -89,3 +102,9 @@ volumes:
     plex_config:
     vnstat_data:
     htpcmanager_config:
+
+networks:
+    default:
+    traefik:
+      external:
+        name: monitoring_monitoring
