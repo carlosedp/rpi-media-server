@@ -107,4 +107,4 @@ networks:
     default:
     traefik:
       external:
-        name: monitoring_monitoring
+        name: monitoring_default
