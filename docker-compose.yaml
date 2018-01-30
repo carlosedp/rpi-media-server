@@ -92,7 +92,7 @@ services:
        - "traefik.frontend.rule=Host:htpcmanager.cloud.carlosedp.com"
        - "traefik.enable=true"
        - "traefik.port=8085"
-       - "traefik.docker.network=monitoring_default"
+       - "traefik.docker.network=containermgmt_traefik"
        - "traefik.default.protocol=http"
 
 volumes:
@@ -108,4 +108,4 @@ networks:
     default:
     traefik:
       external:
-        name: monitoring_default
+        name: containermgmt_traefik
