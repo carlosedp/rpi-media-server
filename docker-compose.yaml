@@ -3,7 +3,7 @@ version: '2'
 services:
 
    transmission:
-     image: carlosedp/rpi-transmission
+     image: carlosedp/transmission
      restart: unless-stopped
      ports:
        - "9091:9091"
@@ -17,7 +17,7 @@ services:
    sickrage:
      depends_on:
        - transmission
-     image: carlosedp/rpi-sickrage
+     image: carlosedp/sickrage
      restart: unless-stopped
      ports:
        - "8081:8081"
@@ -32,7 +32,7 @@ services:
    couchpotato:
      depends_on:
        - transmission
-     image: carlosedp/rpi-couchpotato
+     image: carlosedp/couchpotato
      restart: unless-stopped
      ports:
        - "5050:5050"
@@ -61,7 +61,7 @@ services:
        - /etc/localtime:/etc/localtime:ro
 
    vnstatd:
-     image: carlosedp/rpi-vnstatd
+     image: carlosedp/vnstatd
      network_mode: "host"
      restart: unless-stopped
      privileged: true
@@ -72,7 +72,7 @@ services:
    htpcmanager:
      depends_on:
        - vnstatd
-     image: carlosedp/rpi-htpcmanager
+     image: carlosedp/htpcmanager
      restart: unless-stopped
      ports:
        - "8085:8085"
