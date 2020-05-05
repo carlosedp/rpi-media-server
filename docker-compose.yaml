@@ -11,23 +11,39 @@ services:
        - "51413:51413/udp"
      volumes:
        - transmission_config:/etc/transmission-daemon
-       - ${MEDIA}:/volumes/media
        - /etc/localtime:/etc/localtime:ro
+       - ${MEDIA}/Downloads:/downloads
+       - ${MEDIA}/Downloads/Incomplete:/volumes/media/Downloads/Incomplete
+     labels:
+       - "traefik.backend=transmission"
+       - "traefik.frontend.rule=Host:transmission.cloud.carlosedp.com"
+       - "traefik.enable=true"
+       - "traefik.port=9091"
+       - "traefik.docker.network=containermgmt_traefik"
+       - "traefik.default.protocol=http"
 
    sickrage:
      depends_on:
        - transmission
-     image: carlosedp/sickrage
+     image: sickrage/sickrage:arm64v8-latest
      restart: unless-stopped
      ports:
        - "8081:8081"
      volumes:
        - sickrage_config:/config
-       - ${MEDIA}:/volumes/media
+       - ${MEDIA}/Downloads:/downloads
+       - ${MEDIA}/TVShows:/tv
        - /etc/localtime:/etc/localtime:ro
      environment:
        PGID: ${GROUP_ID}
        PUID: ${USER_ID}
+     labels:
+       - "traefik.backend=sickrage"
+       - "traefik.frontend.rule=Host:sickrage.cloud.carlosedp.com"
+       - "traefik.enable=true"
+       - "traefik.port=8081"
+       - "traefik.docker.network=containermgmt_traefik"
+       - "traefik.default.protocol=http"
 
    couchpotato:
      depends_on:
@@ -37,14 +53,23 @@ services:
      ports:
        - "5050:5050"
      volumes:
+       - ${MEDIA}/Downloads:/downloads
        - ${MEDIA}:/volumes/media
        - couchpotato_data:/volumes/data
        - couchpotato_config:/volumes/config
        - /etc/localtime:/etc/localtime:ro
+     labels:
+       - "traefik.backend=couchpotato"
+       - "traefik.frontend.rule=Host:couchpotato.cloud.carlosedp.com"
+       - "traefik.enable=true"
+       - "traefik.port=5050"
+       - "traefik.docker.network=containermgmt_traefik"
+       - "traefik.default.protocol=http"
 
    plex:
      image: jaymoulin/plex
      restart: unless-stopped
+     network_mode: "host"
      ports:
        - 32400:32400/tcp
        - 3005:3005/tcp
@@ -59,6 +84,13 @@ services:
        - ${MEDIA}:/media
        - plex_config:/root/Library
        - /etc/localtime:/etc/localtime:ro
+     labels:
+       - "traefik.backend=plex"
+       - "traefik.frontend.rule=Host:plex.cloud.carlosedp.com"
+       - "traefik.enable=true"
+       - "traefik.port=32400"
+       - "traefik.docker.network=containermgmt_traefik"
+       - "traefik.default.protocol=http"
 
    vnstatd:
      image: carlosedp/vnstatd
